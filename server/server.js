@@ -1,10 +1,17 @@
-const express = require("express");
-const cors = require("cors");
-const morgan = require("morgan");
-const mongoose = require("mongoose");
-require("dotenv").config();
+import express from "express";
+import cors from "cors";
+import morgan from "morgan";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-const { readdirSync } = require("fs");
+import { readdirSync } from "fs";
+
+// const cors = require("cors");
+// const morgan = require("morgan");
+// const mongoose = require("mongoose");
+// require("dotenv").config();
+
+dotenv.config();
 // Create express appp
 
 const app = express();
@@ -25,9 +32,18 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 // Require all files from "./routes" directory
-readdirSync("./routes").map((r) => {
-  app.use("/api", require(`./routes/${r}`));
+
+const routeFiles = readdirSync("./routes");
+console.log(routeFiles);
+routeFiles.map((r) => {
+  import(`./routes/${r}`).then((routeModule) => {
+    app.use("/api", routeModule.default);
+  });
 });
+
+// readdirSync("./routes").map((r) => {
+//   app.use("/api", require(`./routes/${r}`));
+// });
 
 const port = process.env.PORT || 8000;
 
